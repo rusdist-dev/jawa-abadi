@@ -1,0 +1,27 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('banners', function (Blueprint $table) {
+            $table->id();
+            $table->string('title');                       // dipakai sebagai alt gambar
+            $table->string('image');                       // path/URL gambar
+            $table->foreignId('product_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('link_url')->nullable();        // tautan bebas bila tidak mengarah ke produk
+            $table->unsignedSmallInteger('sort_order')->default(0);
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('banners');
+    }
+};

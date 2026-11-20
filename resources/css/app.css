@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] {
+    display: none !important;
+}
+
+@layer base {
+    :root {
+        --chart-line: theme('colors.primary.600');
+        --chart-fill: theme('colors.primary.600 / 12%');
+    }
+
+    html {
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        @apply bg-white text-stone-900 antialiased;
+    }
+}
+
+@layer components {
+    /* Slider rentang ganda: dua <input type=range> bertumpuk, hanya thumb yang menerima pointer. */
+    .range-thumb {
+        @apply pointer-events-none absolute inset-0 h-5 w-full appearance-none bg-transparent;
+    }
+
+    .range-thumb::-webkit-slider-thumb {
+        @apply pointer-events-auto h-5 w-5 cursor-grab appearance-none rounded-full border-2 border-solid border-primary-600 bg-white shadow-sm;
+    }
+
+    .range-thumb::-moz-range-thumb {
+        @apply pointer-events-auto h-5 w-5 cursor-grab rounded-full border-2 border-solid border-primary-600 bg-white shadow-sm;
+    }
+
+    .range-thumb:focus-visible::-webkit-slider-thumb {
+        @apply ring-2 ring-primary-500 ring-offset-2;
+    }
+
+    .range-thumb:focus-visible::-moz-range-thumb {
+        @apply ring-2 ring-primary-500 ring-offset-2;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

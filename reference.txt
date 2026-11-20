@@ -1,0 +1,1780 @@
+You are given a task to integrate an existing React component in the codebase
+
+The codebase should support:
+- shadcn project structure  
+- Tailwind CSS
+- Typescript
+
+If it doesn't, provide instructions on how to setup project via shadcn CLI, install Tailwind or Typescript.
+
+Determine the default path for components and styles. 
+If default path for components is not /components/ui, provide instructions on why it's important to create this folder
+Copy-paste this component to /components/ui folder:
+```tsx
+ecommerce-04.tsx
+// E-commerce 4 from Hirael <https://hirael.com/blocks/ecommerce/ecommerce-04>
+// MIT · Mohammad Shehadeh · https://github.com/MohammadShehadeh/hirael
+
+"use client";
+
+import * as React from "react";
+import Image from "next/image";
+import { SlidersHorizontal, X } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+import { Rating } from "@/components/ui/ecommerce-04-utils/rating";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/ecommerce-04-utils/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import {
+  Field,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from "@/components/ui/field";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Sheet,
+  SheetBody,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/ecommerce-04-utils/sheet";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/ui/ecommerce-04-utils/toggle-group";
+
+const ENTER =
+  "animate-in fade-in slide-in-from-bottom-4 duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] fill-mode-both motion-reduce:animate-none";
+const SWAP =
+  "animate-in fade-in slide-in-from-bottom-2 duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] fill-mode-both motion-reduce:animate-none";
+
+const stagger = (
+  index: number,
+  step = 60,
+  offset = 0,
+): React.CSSProperties => ({
+  animationDelay: `${offset + index * step}ms`,
+});
+
+const CATEGORIES = [
+  { value: "tech", label: "Tech" },
+  { value: "bags", label: "Bags" },
+  { value: "apparel", label: "Apparel" },
+  { value: "outdoor", label: "Outdoor" },
+] as const;
+
+type Category = (typeof CATEGORIES)[number]["value"];
+
+// Product finishes are catalogue data, so they stay the same in both themes.
+const COLOURS = [
+  { value: "black", label: "Black", swatch: "oklch(0.24 0.005 260)" },
+  { value: "white", label: "White", swatch: "oklch(0.97 0.003 90)" },
+  { value: "sand", label: "Sand", swatch: "oklch(0.84 0.035 80)" },
+  { value: "olive", label: "Olive", swatch: "oklch(0.55 0.06 120)" },
+  { value: "navy", label: "Navy", swatch: "oklch(0.33 0.06 260)" },
+] as const;
+
+type Colour = (typeof COLOURS)[number]["value"];
+
+const RATINGS = [
+  { value: "any", label: "Any rating", min: 0 },
+  { value: "4", label: "4 stars & up", min: 4 },
+  { value: "3", label: "3 stars & up", min: 3 },
+] as const;
+
+type RatingFilter = (typeof RATINGS)[number]["value"];
+
+const SORTS = [
+  { value: "featured", label: "Featured" },
+  { value: "price-asc", label: "Price low to high" },
+  { value: "price-desc", label: "Price high to low" },
+  { value: "newest", label: "Newest" },
+] as const;
+
+type Sort = (typeof SORTS)[number]["value"];
+
+const PRICE_MIN = 0;
+const PRICE_MAX = 400;
+
+interface Product {
+  id: string;
+  name: string;
+  category: Category;
+  colour: Colour;
+  price: number;
+  rating: number;
+  reviews: number;
+  inStock: boolean;
+  added: string;
+  image: string;
+}
+
+// Placeholder photos served from hirael.com. Swap them for your own assets, or
+// add the host to `images.remotePatterns` in next.config to keep them.
+const MEDIA = "https://hirael.com/media/blocks/ecommerce-04";
+
+const PRODUCTS: readonly Product[] = [
+  {
+    id: "atlas-headphones",
+    name: "Atlas Over-Ear Headphones",
+    category: "tech",
+    colour: "black",
+    price: 249,
+    rating: 4.8,
+    reviews: 1204,
+    inStock: true,
+    added: "2026-03-10",
+    image: `${MEDIA}/atlas-headphones.jpg`,
+  },
+  {
+    id: "carryall-pack",
+    name: "Carryall Day Pack",
+    category: "bags",
+    colour: "olive",
+    price: 96,
+    rating: 4.7,
+    reviews: 566,
+    inStock: true,
+    added: "2026-05-21",
+    image: `${MEDIA}/carryall-pack.jpg`,
+  },
+  {
+    id: "meridian-watch",
+    name: "Meridian Chrono Watch",
+    category: "tech",
+    colour: "navy",
+    price: 389,
+    rating: 4.9,
+    reviews: 318,
+    inStock: true,
+    added: "2026-01-14",
+    image: `${MEDIA}/meridian-watch.jpg`,
+  },
+  {
+    id: "volt-runners",
+    name: "Volt Runner Sneakers",
+    category: "apparel",
+    colour: "white",
+    price: 129,
+    rating: 4.6,
+    reviews: 942,
+    inStock: true,
+    added: "2026-08-30",
+    image: `${MEDIA}/volt-runners.jpg`,
+  },
+  {
+    id: "horizon-sunglasses",
+    name: "Horizon Sunglasses",
+    category: "outdoor",
+    colour: "black",
+    price: 74,
+    rating: 4.5,
+    reviews: 211,
+    inStock: true,
+    added: "2026-04-02",
+    image: `${MEDIA}/horizon-sunglasses.jpg`,
+  },
+  {
+    id: "pioneer-camera",
+    name: "Pioneer Instant Camera",
+    category: "tech",
+    colour: "white",
+    price: 179,
+    rating: 4.7,
+    reviews: 689,
+    inStock: false,
+    added: "2026-09-02",
+    image: `${MEDIA}/pioneer-camera.jpg`,
+  },
+  {
+    id: "hydra-bottle",
+    name: "Hydra Steel Bottle, 750 ml",
+    category: "outdoor",
+    colour: "black",
+    price: 32,
+    rating: 4.4,
+    reviews: 1870,
+    inStock: true,
+    added: "2025-11-18",
+    image: `${MEDIA}/hydra-bottle.jpg`,
+  },
+  {
+    id: "field-cap",
+    name: "Field Cap",
+    category: "apparel",
+    colour: "sand",
+    price: 28,
+    rating: 4.3,
+    reviews: 404,
+    inStock: true,
+    added: "2026-02-09",
+    image: `${MEDIA}/field-cap.jpg`,
+  },
+  {
+    id: "carryall-sling",
+    name: "Carryall Sling",
+    category: "bags",
+    colour: "black",
+    price: 64,
+    rating: 4.2,
+    reviews: 137,
+    inStock: false,
+    added: "2026-07-15",
+    image: `${MEDIA}/carryall-pack.jpg`,
+  },
+  {
+    id: "volt-trail",
+    name: "Volt Trail Runner",
+    category: "outdoor",
+    colour: "olive",
+    price: 149,
+    rating: 3.8,
+    reviews: 96,
+    inStock: true,
+    added: "2026-08-11",
+    image: `${MEDIA}/volt-runners.jpg`,
+  },
+  {
+    id: "field-cap-wool",
+    name: "Field Cap, Wool",
+    category: "apparel",
+    colour: "navy",
+    price: 36,
+    rating: 3.9,
+    reviews: 58,
+    inStock: true,
+    added: "2026-09-08",
+    image: `${MEDIA}/field-cap.jpg`,
+  },
+  {
+    id: "hydra-bottle-large",
+    name: "Hydra Steel Bottle, 1 L",
+    category: "outdoor",
+    colour: "sand",
+    price: 38,
+    rating: 4.1,
+    reviews: 322,
+    inStock: true,
+    added: "2026-06-27",
+    image: `${MEDIA}/hydra-bottle.jpg`,
+  },
+];
+
+interface Filters {
+  categories: Category[];
+  price: [number, number];
+  colours: Colour[];
+  inStock: boolean;
+  rating: RatingFilter;
+}
+
+const EMPTY_FILTERS: Filters = {
+  categories: [],
+  price: [PRICE_MIN, PRICE_MAX],
+  colours: [],
+  inStock: false,
+  rating: "any",
+};
+
+const labelOf = <T extends string>(
+  options: readonly { value: T; label: string }[],
+  value: T,
+) => options.find((option) => option.value === value)?.label ?? value;
+
+const usd = (amount: number) => `$${amount}`;
+
+const matches = (
+  product: Product,
+  filters: Filters,
+  ignoreCategory = false,
+) => {
+  const minRating =
+    RATINGS.find((option) => option.value === filters.rating)?.min ?? 0;
+  return (
+    (ignoreCategory ||
+      filters.categories.length === 0 ||
+      filters.categories.includes(product.category)) &&
+    product.price >= filters.price[0] &&
+    product.price <= filters.price[1] &&
+    (filters.colours.length === 0 ||
+      filters.colours.includes(product.colour)) &&
+    (!filters.inStock || product.inStock) &&
+    product.rating >= minRating
+  );
+};
+
+const sortProducts = (products: Product[], sort: Sort) => {
+  if (sort === "price-asc") return products.sort((a, b) => a.price - b.price);
+  if (sort === "price-desc") return products.sort((a, b) => b.price - a.price);
+  if (sort === "newest")
+    return products.sort((a, b) => b.added.localeCompare(a.added));
+  return products;
+};
+
+const toggle = <T,>(list: T[], value: T) =>
+  list.includes(value)
+    ? list.filter((item) => item !== value)
+    : [...list, value];
+
+interface ActiveFilter {
+  key: string;
+  label: string;
+  remove: (filters: Filters) => Filters;
+}
+
+const getActiveFilters = (filters: Filters): ActiveFilter[] => [
+  ...filters.categories.map((category) => ({
+    key: `category-${category}`,
+    label: labelOf(CATEGORIES, category),
+    remove: (current: Filters) => ({
+      ...current,
+      categories: current.categories.filter((c) => c !== category),
+    }),
+  })),
+  ...(filters.price[0] !== PRICE_MIN || filters.price[1] !== PRICE_MAX
+    ? [
+        {
+          key: "price",
+          label: `${usd(filters.price[0])} to ${usd(filters.price[1])}`,
+          remove: (current: Filters) => ({
+            ...current,
+            price: EMPTY_FILTERS.price,
+          }),
+        },
+      ]
+    : []),
+  ...filters.colours.map((colour) => ({
+    key: `colour-${colour}`,
+    label: labelOf(COLOURS, colour),
+    remove: (current: Filters) => ({
+      ...current,
+      colours: current.colours.filter((c) => c !== colour),
+    }),
+  })),
+  ...(filters.inStock
+    ? [
+        {
+          key: "stock",
+          label: "In stock",
+          remove: (current: Filters) => ({ ...current, inStock: false }),
+        },
+      ]
+    : []),
+  ...(filters.rating !== "any"
+    ? [
+        {
+          key: "rating",
+          label: labelOf(RATINGS, filters.rating),
+          remove: (current: Filters) => ({
+            ...current,
+            rating: EMPTY_FILTERS.rating,
+          }),
+        },
+      ]
+    : []),
+];
+
+interface FilterPanelProps {
+  filters: Filters;
+  onFiltersChange: (next: Filters) => void;
+}
+
+const FilterPanel = ({ filters, onFiltersChange }: FilterPanelProps) => {
+  const id = React.useId();
+  const update = (patch: Partial<Filters>) =>
+    onFiltersChange({ ...filters, ...patch });
+
+  return (
+    <div
+      data-slot="filter-panel"
+      className="flex flex-col divide-y divide-border"
+    >
+      <FieldSet className="gap-3 pb-6">
+        <FieldLegend
+          variant="label"
+          className="text-xs font-normal uppercase text-muted-foreground"
+        >
+          Category
+        </FieldLegend>
+        {CATEGORIES.map((category) => {
+          const count = PRODUCTS.filter(
+            (product) =>
+              product.category === category.value &&
+              matches(product, filters, true),
+          ).length;
+          const checked = filters.categories.includes(category.value);
+          return (
+            <Field
+              key={category.value}
+              orientation="horizontal"
+              data-disabled={count === 0 && !checked}
+            >
+              <Checkbox
+                id={`${id}-${category.value}`}
+                checked={checked}
+                disabled={count === 0 && !checked}
+                onCheckedChange={() =>
+                  update({
+                    categories: toggle(filters.categories, category.value),
+                  })
+                }
+              />
+              <FieldLabel
+                htmlFor={`${id}-${category.value}`}
+                className="font-normal"
+              >
+                {category.label}
+              </FieldLabel>
+              <span className="ms-auto text-xs tabular-nums text-muted-foreground">
+                {count}
+              </span>
+            </Field>
+          );
+        })}
+      </FieldSet>
+
+      <FieldSet className="gap-4 py-6">
+        <FieldLegend
+          variant="label"
+          className="text-xs font-normal uppercase text-muted-foreground"
+        >
+          Price
+        </FieldLegend>
+        <Slider
+          min={PRICE_MIN}
+          max={PRICE_MAX}
+          step={10}
+          minStepsBetweenThumbs={1}
+          value={filters.price}
+          onValueChange={(next) => update({ price: [next[0], next[1]] })}
+          aria-label="Price range"
+        />
+        <div className="flex items-center justify-between text-sm tabular-nums">
+          <span>
+            <span className="sr-only">From </span>
+            {usd(filters.price[0])}
+          </span>
+          <span>
+            <span className="sr-only">To </span>
+            {usd(filters.price[1])}
+            {filters.price[1] === PRICE_MAX && "+"}
+          </span>
+        </div>
+      </FieldSet>
+
+      <FieldSet className="gap-3 py-6">
+        <FieldLegend
+          variant="label"
+          className="text-xs font-normal uppercase text-muted-foreground"
+        >
+          Colour
+        </FieldLegend>
+        <ToggleGroup
+          type="multiple"
+          spacing={2}
+          value={filters.colours}
+          onValueChange={(next) => update({ colours: next as Colour[] })}
+          className="flex-wrap"
+        >
+          {COLOURS.map((colour) => (
+            <ToggleGroupItem
+              key={colour.value}
+              value={colour.value}
+              aria-label={colour.label}
+              title={colour.label}
+              style={{ backgroundColor: colour.swatch }}
+              className="size-7 min-w-0 rounded-full border border-foreground/15 p-0 ring-offset-2 ring-offset-background transition-shadow duration-150 hover:opacity-90 data-[state=on]:ring-2 data-[state=on]:ring-foreground"
+            />
+          ))}
+        </ToggleGroup>
+      </FieldSet>
+
+      <Field orientation="horizontal" className="py-6">
+        <FieldLabel htmlFor={`${id}-stock`} className="font-normal">
+          In stock only
+        </FieldLabel>
+        <Switch
+          id={`${id}-stock`}
+          checked={filters.inStock}
+          onCheckedChange={(checked) => update({ inStock: checked })}
+        />
+      </Field>
+
+      <FieldSet className="gap-3 pt-6">
+        <FieldLegend
+          variant="label"
+          className="text-xs font-normal uppercase text-muted-foreground"
+        >
+          Rating
+        </FieldLegend>
+        <RadioGroup
+          value={filters.rating}
+          onValueChange={(next) => update({ rating: next as RatingFilter })}
+        >
+          {RATINGS.map((option) => (
+            <Field key={option.value} orientation="horizontal">
+              <RadioGroupItem
+                id={`${id}-rating-${option.value}`}
+                value={option.value}
+              />
+              <FieldLabel
+                htmlFor={`${id}-rating-${option.value}`}
+                className="items-center font-normal"
+              >
+                {option.min > 0 && (
+                  <Rating value={option.min} readOnly size="sm" aria-hidden />
+                )}
+                {option.label}
+              </FieldLabel>
+            </Field>
+          ))}
+        </RadioGroup>
+      </FieldSet>
+    </div>
+  );
+};
+
+const ProductCard = ({
+  product,
+  index,
+}: {
+  product: Product;
+  index: number;
+}) => {
+  return (
+    <article
+      data-slot="product-card"
+      style={stagger(Math.min(index, 8), 45)}
+      className={cn(SWAP, "group relative flex flex-col gap-3")}
+    >
+      <div className="relative aspect-[4/5] overflow-hidden rounded-md border border-border bg-muted">
+        <Image
+          src={product.image}
+          alt={product.name}
+          fill
+          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+          className={cn(
+            "object-cover transition-transform duration-300 ease-out group-hover:scale-105 motion-reduce:transition-none",
+            !product.inStock && "opacity-60",
+          )}
+        />
+        {!product.inStock && (
+          <Badge
+            variant="outline"
+            className="absolute start-2.5 top-2.5 bg-background/85 backdrop-blur"
+          >
+            Sold out
+          </Badge>
+        )}
+      </div>
+      <div className="flex flex-col gap-1">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="text-sm font-medium text-pretty">
+            <a
+              href="#"
+              className="after:absolute after:inset-0 focus-visible:outline-none"
+            >
+              {product.name}
+            </a>
+          </h3>
+          <span className="shrink-0 text-sm font-semibold tabular-nums">
+            {usd(product.price)}
+          </span>
+        </div>
+        <span className="text-xs text-muted-foreground">
+          {labelOf(COLOURS, product.colour)}
+        </span>
+        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Rating
+            value={product.rating}
+            step={0.5}
+            readOnly
+            size="sm"
+            aria-label={`Rated ${product.rating} out of 5`}
+          />
+          <span className="tabular-nums">{product.rating.toFixed(1)}</span>
+          <span className="tabular-nums">
+            ({product.reviews.toLocaleString("en-US")})
+          </span>
+        </span>
+      </div>
+    </article>
+  );
+};
+
+const Ecommerce04 = () => {
+  const [filters, setFilters] = React.useState<Filters>(EMPTY_FILTERS);
+  const [sort, setSort] = React.useState<Sort>("featured");
+
+  const results = sortProducts(
+    PRODUCTS.filter((product) => matches(product, filters)),
+    sort,
+  );
+  const active = getActiveFilters(filters);
+  const resultKey = JSON.stringify([filters, sort]);
+  const clearAll = () => setFilters(EMPTY_FILTERS);
+  const resultLabel = `${results.length} ${results.length === 1 ? "product" : "products"}`;
+
+  return (
+    <section data-slot="category-page" className="bg-background py-16 md:py-24">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 md:px-10">
+        <div
+          data-slot="category-header"
+          className="flex max-w-xl flex-col gap-4"
+        >
+          <span
+            className={cn(ENTER, "text-xs uppercase text-muted-foreground")}
+          >
+            Shop
+          </span>
+          <h2
+            style={stagger(1, 80)}
+            className={cn(
+              ENTER,
+              "text-balance text-3xl font-semibold tracking-tight sm:text-4xl",
+            )}
+          >
+            Everyday carry
+          </h2>
+          <p
+            style={stagger(2, 80)}
+            className={cn(
+              ENTER,
+              "text-base leading-relaxed text-muted-foreground",
+            )}
+          >
+            Bags, bottles and small tech we use every day. Free shipping over
+            $200 and free returns for 60 days.
+          </p>
+        </div>
+
+        <div className="grid gap-10 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-14">
+          <aside
+            data-slot="category-filters"
+            aria-label="Filters"
+            style={stagger(3, 80)}
+            className={cn(
+              ENTER,
+              "hidden lg:sticky lg:top-8 lg:block lg:self-start",
+            )}
+          >
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <span className="text-sm font-medium">Filters</span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                onClick={clearAll}
+                disabled={active.length === 0}
+                className="text-muted-foreground"
+              >
+                Clear all
+              </Button>
+            </div>
+            <div className="pt-6">
+              <FilterPanel filters={filters} onFiltersChange={setFilters} />
+            </div>
+          </aside>
+
+          <div
+            data-slot="category-results"
+            style={stagger(4, 80)}
+            className={cn(ENTER, "flex min-w-0 flex-col gap-6")}
+          >
+            <div className="flex flex-col gap-4 border-b border-border pb-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="lg:hidden"
+                      >
+                        <SlidersHorizontal />
+                        Filters
+                        {active.length > 0 && (
+                          <span className="tabular-nums">
+                            ({active.length})
+                          </span>
+                        )}
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent
+                      side="bottom"
+                      className="max-h-[85svh] gap-0 rounded-t-xl"
+                    >
+                      <SheetHeader className="border-b border-border">
+                        <SheetTitle>Filters</SheetTitle>
+                        <SheetDescription>
+                          Results update as you change them.
+                        </SheetDescription>
+                      </SheetHeader>
+                      <SheetBody className="min-h-0 py-6">
+                        <FilterPanel
+                          filters={filters}
+                          onFiltersChange={setFilters}
+                        />
+                      </SheetBody>
+                      <SheetFooter className="flex-row border-t border-border">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={clearAll}
+                          disabled={active.length === 0}
+                        >
+                          Clear all
+                        </Button>
+                        <SheetClose asChild>
+                          <Button type="button" className="flex-1 tabular-nums">
+                            {results.length === 0
+                              ? "No matches"
+                              : `Show ${results.length} ${results.length === 1 ? "result" : "results"}`}
+                          </Button>
+                        </SheetClose>
+                      </SheetFooter>
+                    </SheetContent>
+                  </Sheet>
+                  <p
+                    aria-live="polite"
+                    className="text-sm tabular-nums text-muted-foreground"
+                  >
+                    {resultLabel}
+                  </p>
+                </div>
+                <Select
+                  value={sort}
+                  onValueChange={(next) => setSort(next as Sort)}
+                >
+                  <SelectTrigger
+                    size="sm"
+                    aria-label="Sort products"
+                    className="min-w-44"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent position="popper" align="end">
+                    {SORTS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {active.length > 0 && (
+                <ul
+                  data-slot="active-filters"
+                  aria-label="Active filters"
+                  className="flex flex-wrap items-center gap-2"
+                >
+                  {active.map((filter) => (
+                    <li
+                      key={filter.key}
+                      className="animate-in fade-in zoom-in-95 duration-200 motion-reduce:animate-none"
+                    >
+                      <Badge
+                        variant="outline"
+                        className="h-7 gap-1 pe-1 ps-2.5 font-normal"
+                      >
+                        {filter.label}
+                        <button
+                          type="button"
+                          aria-label={`Remove ${filter.label}`}
+                          onClick={() => setFilters(filter.remove(filters))}
+                          className="grid size-5 place-items-center rounded-full text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          <X className="size-3" />
+                        </button>
+                      </Badge>
+                    </li>
+                  ))}
+                  <li>
+                    <Button
+                      type="button"
+                      variant="link"
+                      size="xs"
+                      onClick={clearAll}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      Clear all
+                    </Button>
+                  </li>
+                </ul>
+              )}
+            </div>
+
+            {results.length > 0 ? (
+              <div
+                key={resultKey}
+                data-slot="product-grid"
+                className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6"
+              >
+                {results.map((product, index) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    index={index}
+                  />
+                ))}
+              </div>
+            ) : (
+              <Empty
+                data-slot="product-empty"
+                className={cn(SWAP, "border border-border py-16")}
+              >
+                <EmptyHeader>
+                  <EmptyTitle>Nothing matches those filters</EmptyTitle>
+                  <EmptyDescription>
+                    Try a wider price range or fewer colours. Sold out items
+                    come back most weeks.
+                  </EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent>
+                  <Button type="button" variant="outline" onClick={clearAll}>
+                    Clear filters
+                  </Button>
+                </EmptyContent>
+              </Empty>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Ecommerce04;
+
+
+demo.tsx
+import Ecommerce04 from "@/components/ui/ecommerce-04";
+
+export default function Ecommerce04Demo() {
+  return <Ecommerce04 />;
+}
+
+```
+
+Copy-paste these files for dependencies:
+```tsx
+shadcn/badge
+import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
+
+import { cn } from "@/lib/utils"
+
+const badgeVariants = cva(
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  {
+    variants: {
+      variant: {
+        default:
+          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        secondary:
+          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        destructive:
+          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+        outline: "text-foreground",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  },
+)
+
+export interface BadgeProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof badgeVariants> {}
+
+function Badge({ className, variant, ...props }: BadgeProps) {
+  return (
+    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+  )
+}
+
+export { Badge, badgeVariants }
+
+```
+```tsx
+shadcn/button
+import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
+import { cva, type VariantProps } from "class-variance-authority"
+
+import { cn } from "@/lib/utils"
+
+const buttonVariants = cva(
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        destructive:
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline:
+          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-10 px-4 py-2",
+        sm: "h-9 rounded-md px-3",
+        lg: "h-11 rounded-md px-8",
+        icon: "h-10 w-10",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  },
+)
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button"
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      />
+    )
+  },
+)
+Button.displayName = "Button"
+
+export { Button, buttonVariants }
+
+```
+```tsx
+shadcn/checkbox
+"use client"
+
+import * as React from "react"
+import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
+import { Check } from "lucide-react"
+
+import { cn } from "@/lib/utils"
+
+const Checkbox = React.forwardRef<
+  React.ElementRef<typeof CheckboxPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
+>(({ className, ...props }, ref) => (
+  <CheckboxPrimitive.Root
+    ref={ref}
+    className={cn(
+      "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
+      className,
+    )}
+    {...props}
+  >
+    <CheckboxPrimitive.Indicator
+      className={cn("flex items-center justify-center text-current")}
+    >
+      <Check className="h-4 w-4" />
+    </CheckboxPrimitive.Indicator>
+  </CheckboxPrimitive.Root>
+))
+Checkbox.displayName = CheckboxPrimitive.Root.displayName
+
+export { Checkbox }
+
+```
+```tsx
+shadcn/empty
+import { cva, type VariantProps } from "class-variance-authority"
+
+import { cn } from "@/lib/utils"
+
+function Empty({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="empty"
+      className={cn(
+        "flex min-w-0 flex-1 flex-col items-center justify-center gap-6 rounded-lg border-dashed p-6 text-center text-balance md:p-12",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function EmptyHeader({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="empty-header"
+      className={cn(
+        "flex max-w-sm flex-col items-center gap-2 text-center",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+const emptyMediaVariants = cva(
+  "flex shrink-0 items-center justify-center mb-2 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  {
+    variants: {
+      variant: {
+        default: "bg-transparent",
+        icon: "bg-muted text-foreground flex size-10 shrink-0 items-center justify-center rounded-lg [&_svg:not([class*='size-'])]:size-6",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
+
+function EmptyMedia({
+  className,
+  variant = "default",
+  ...props
+}: React.ComponentProps<"div"> & VariantProps<typeof emptyMediaVariants>) {
+  return (
+    <div
+      data-slot="empty-icon"
+      data-variant={variant}
+      className={cn(emptyMediaVariants({ variant, className }))}
+      {...props}
+    />
+  )
+}
+
+function EmptyTitle({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="empty-title"
+      className={cn("text-lg font-medium tracking-tight", className)}
+      {...props}
+    />
+  )
+}
+
+function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
+  return (
+    <div
+      data-slot="empty-description"
+      className={cn(
+        "text-muted-foreground [&>a:hover]:text-primary text-sm/relaxed [&>a]:underline [&>a]:underline-offset-4",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="empty-content"
+      className={cn(
+        "flex w-full max-w-sm min-w-0 flex-col items-center gap-4 text-sm text-balance",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+export {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyContent,
+  EmptyMedia,
+}
+
+```
+```tsx
+shadcn/avatar
+"use client";
+
+import * as React from "react";
+import * as AvatarPrimitive from "@radix-ui/react-avatar";
+
+import { cn } from "@/lib/utils";
+
+const Avatar = React.forwardRef<
+  React.ElementRef<typeof AvatarPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
+>(({ className, ...props }, ref) => (
+  <AvatarPrimitive.Root
+    ref={ref}
+    className={cn(
+      "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
+      className,
+    )}
+    {...props}
+  />
+));
+Avatar.displayName = AvatarPrimitive.Root.displayName;
+
+const AvatarImage = React.forwardRef<
+  React.ElementRef<typeof AvatarPrimitive.Image>,
+  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
+>(({ className, ...props }, ref) => (
+  <AvatarPrimitive.Image
+    ref={ref}
+    className={cn("aspect-square h-full w-full", className)}
+    {...props}
+  />
+));
+AvatarImage.displayName = AvatarPrimitive.Image.displayName;
+
+const AvatarFallback = React.forwardRef<
+  React.ElementRef<typeof AvatarPrimitive.Fallback>,
+  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
+>(({ className, ...props }, ref) => (
+  <AvatarPrimitive.Fallback
+    ref={ref}
+    className={cn(
+      "flex h-full w-full items-center justify-center rounded-full bg-muted",
+      className,
+    )}
+    {...props}
+  />
+));
+AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName;
+
+export { Avatar, AvatarImage, AvatarFallback };
+
+export default Avatar;
+
+```
+```tsx
+shadcn/radio-group
+"use client"
+
+import * as React from "react"
+import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
+import { Circle } from "lucide-react"
+
+import { cn } from "@/lib/utils"
+
+const RadioGroup = React.forwardRef<
+  React.ElementRef<typeof RadioGroupPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
+>(({ className, ...props }, ref) => {
+  return (
+    <RadioGroupPrimitive.Root
+      className={cn("grid gap-2", className)}
+      {...props}
+      ref={ref}
+    />
+  )
+})
+RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
+
+const RadioGroupItem = React.forwardRef<
+  React.ElementRef<typeof RadioGroupPrimitive.Item>,
+  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
+>(({ className, ...props }, ref) => {
+  return (
+    <RadioGroupPrimitive.Item
+      ref={ref}
+      className={cn(
+        "aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+        className,
+      )}
+      {...props}
+    >
+      <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
+        <Circle className="h-2.5 w-2.5 fill-current text-current" />
+      </RadioGroupPrimitive.Indicator>
+    </RadioGroupPrimitive.Item>
+  )
+})
+RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
+
+export { RadioGroup, RadioGroupItem }
+
+```
+```tsx
+shadcn/label
+"use client"
+
+import * as React from "react"
+import * as LabelPrimitive from "@radix-ui/react-label"
+import { cva, type VariantProps } from "class-variance-authority"
+
+import { cn } from "@/lib/utils"
+
+const labelVariants = cva(
+  "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+)
+
+const Label = React.forwardRef<
+  React.ElementRef<typeof LabelPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> &
+    VariantProps<typeof labelVariants>
+>(({ className, ...props }, ref) => (
+  <LabelPrimitive.Root
+    ref={ref}
+    className={cn(labelVariants(), className)}
+    {...props}
+  />
+))
+Label.displayName = LabelPrimitive.Root.displayName
+
+export { Label }
+
+```
+```tsx
+shadcn/select
+"use client"
+
+import * as React from "react"
+import * as SelectPrimitive from "@radix-ui/react-select"
+import { Check, ChevronDown, ChevronUp } from "lucide-react"
+
+import { cn } from "@/lib/utils"
+
+const Select = SelectPrimitive.Root
+
+const SelectGroup = SelectPrimitive.Group
+
+const SelectValue = SelectPrimitive.Value
+
+const SelectTrigger = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Trigger>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
+>(({ className, children, ...props }, ref) => (
+  <SelectPrimitive.Trigger
+    ref={ref}
+    className={cn(
+      "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+      className,
+    )}
+    {...props}
+  >
+    {children}
+    <SelectPrimitive.Icon asChild>
+      <ChevronDown className="h-4 w-4 opacity-50" />
+    </SelectPrimitive.Icon>
+  </SelectPrimitive.Trigger>
+))
+SelectTrigger.displayName = SelectPrimitive.Trigger.displayName
+
+const SelectScrollUpButton = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.ScrollUpButton>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollUpButton>
+>(({ className, ...props }, ref) => (
+  <SelectPrimitive.ScrollUpButton
+    ref={ref}
+    className={cn(
+      "flex cursor-default items-center justify-center py-1",
+      className,
+    )}
+    {...props}
+  >
+    <ChevronUp className="h-4 w-4" />
+  </SelectPrimitive.ScrollUpButton>
+))
+SelectScrollUpButton.displayName = SelectPrimitive.ScrollUpButton.displayName
+
+const SelectScrollDownButton = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.ScrollDownButton>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollDownButton>
+>(({ className, ...props }, ref) => (
+  <SelectPrimitive.ScrollDownButton
+    ref={ref}
+    className={cn(
+      "flex cursor-default items-center justify-center py-1",
+      className,
+    )}
+    {...props}
+  >
+    <ChevronDown className="h-4 w-4" />
+  </SelectPrimitive.ScrollDownButton>
+))
+SelectScrollDownButton.displayName =
+  SelectPrimitive.ScrollDownButton.displayName
+
+const SelectContent = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
+>(({ className, children, position = "popper", ...props }, ref) => (
+  <SelectPrimitive.Portal>
+    <SelectPrimitive.Content
+      ref={ref}
+      className={cn(
+        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+        position === "popper" &&
+          "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
+        className,
+      )}
+      position={position}
+      {...props}
+    >
+      <SelectScrollUpButton />
+      <SelectPrimitive.Viewport
+        className={cn(
+          "p-1",
+          position === "popper" &&
+            "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]",
+        )}
+      >
+        {children}
+      </SelectPrimitive.Viewport>
+      <SelectScrollDownButton />
+    </SelectPrimitive.Content>
+  </SelectPrimitive.Portal>
+))
+SelectContent.displayName = SelectPrimitive.Content.displayName
+
+const SelectLabel = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Label>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Label>
+>(({ className, ...props }, ref) => (
+  <SelectPrimitive.Label
+    ref={ref}
+    className={cn("py-1.5 pl-8 pr-2 text-sm font-semibold", className)}
+    {...props}
+  />
+))
+SelectLabel.displayName = SelectPrimitive.Label.displayName
+
+const SelectItem = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Item>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
+>(({ className, children, ...props }, ref) => (
+  <SelectPrimitive.Item
+    ref={ref}
+    className={cn(
+      "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      className,
+    )}
+    {...props}
+  >
+    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+      <SelectPrimitive.ItemIndicator>
+        <Check className="h-4 w-4" />
+      </SelectPrimitive.ItemIndicator>
+    </span>
+
+    <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+  </SelectPrimitive.Item>
+))
+SelectItem.displayName = SelectPrimitive.Item.displayName
+
+const SelectSeparator = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Separator>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Separator>
+>(({ className, ...props }, ref) => (
+  <SelectPrimitive.Separator
+    ref={ref}
+    className={cn("-mx-1 my-1 h-px bg-muted", className)}
+    {...props}
+  />
+))
+SelectSeparator.displayName = SelectPrimitive.Separator.displayName
+
+export {
+  Select,
+  SelectGroup,
+  SelectValue,
+  SelectTrigger,
+  SelectContent,
+  SelectLabel,
+  SelectItem,
+  SelectSeparator,
+  SelectScrollUpButton,
+  SelectScrollDownButton,
+}
+
+```
+```tsx
+shadcn/sheet
+"use client"
+
+import * as React from "react"
+import * as SheetPrimitive from "@radix-ui/react-dialog"
+import { cva, type VariantProps } from "class-variance-authority"
+import { X } from "lucide-react"
+
+import { cn } from "@/lib/utils"
+
+const Sheet = SheetPrimitive.Root
+
+const SheetTrigger = SheetPrimitive.Trigger
+
+const SheetClose = SheetPrimitive.Close
+
+const SheetPortal = SheetPrimitive.Portal
+
+const SheetOverlay = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Overlay>,
+  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay>
+>(({ className, ...props }, ref) => (
+  <SheetPrimitive.Overlay
+    className={cn(
+      "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      className,
+    )}
+    {...props}
+    ref={ref}
+  />
+))
+SheetOverlay.displayName = SheetPrimitive.Overlay.displayName
+
+const sheetVariants = cva(
+  "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
+  {
+    variants: {
+      side: {
+        top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+        bottom:
+          "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+        left: "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
+        right:
+          "inset-y-0 right-0 h-full w-3/4  border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm",
+      },
+    },
+    defaultVariants: {
+      side: "right",
+    },
+  },
+)
+
+interface SheetContentProps
+  extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
+    VariantProps<typeof sheetVariants> {}
+
+const SheetContent = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Content>,
+  SheetContentProps
+>(({ side = "right", className, children, ...props }, ref) => (
+  <SheetPortal>
+    <SheetOverlay />
+    <SheetPrimitive.Content
+      ref={ref}
+      className={cn(sheetVariants({ side }), className)}
+      {...props}
+    >
+      {children}
+      <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+        <X className="h-4 w-4" />
+        <span className="sr-only">Close</span>
+      </SheetPrimitive.Close>
+    </SheetPrimitive.Content>
+  </SheetPortal>
+))
+SheetContent.displayName = SheetPrimitive.Content.displayName
+
+const SheetHeader = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      "flex flex-col space-y-2 text-center sm:text-left",
+      className,
+    )}
+    {...props}
+  />
+)
+SheetHeader.displayName = "SheetHeader"
+
+const SheetFooter = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      className,
+    )}
+    {...props}
+  />
+)
+SheetFooter.displayName = "SheetFooter"
+
+const SheetTitle = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Title>,
+  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Title>
+>(({ className, ...props }, ref) => (
+  <SheetPrimitive.Title
+    ref={ref}
+    className={cn("text-lg font-semibold text-foreground", className)}
+    {...props}
+  />
+))
+SheetTitle.displayName = SheetPrimitive.Title.displayName
+
+const SheetDescription = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Description>,
+  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Description>
+>(({ className, ...props }, ref) => (
+  <SheetPrimitive.Description
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+))
+SheetDescription.displayName = SheetPrimitive.Description.displayName
+
+export {
+  Sheet,
+  SheetPortal,
+  SheetOverlay,
+  SheetTrigger,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetFooter,
+  SheetTitle,
+  SheetDescription,
+}
+
+```
+```tsx
+shadcn/input
+import * as React from "react"
+
+import { cn } from "@/lib/utils"
+
+export interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {}
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, ...props }, ref) => {
+    return (
+      <input
+        type={type}
+        className={cn(
+          "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+          className
+        )}
+        ref={ref}
+        {...props}
+      />
+    )
+  }
+)
+Input.displayName = "Input"
+
+export { Input }
+
+```
+```tsx
+shadcn/slider
+"use client"
+
+import * as React from "react"
+import * as SliderPrimitive from "@radix-ui/react-slider"
+
+import { cn } from "@/lib/utils"
+
+const Slider = React.forwardRef<
+  React.ElementRef<typeof SliderPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>
+>(({ className, ...props }, ref) => (
+  <SliderPrimitive.Root
+    ref={ref}
+    className={cn(
+      "relative flex w-full touch-none select-none items-center",
+      className,
+    )}
+    {...props}
+  >
+    <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
+      <SliderPrimitive.Range className="absolute h-full bg-primary" />
+    </SliderPrimitive.Track>
+    <SliderPrimitive.Thumb className="block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+  </SliderPrimitive.Root>
+))
+Slider.displayName = SliderPrimitive.Root.displayName
+
+export { Slider }
+
+```
+```tsx
+shadcn/switch
+"use client"
+
+import * as React from "react"
+import * as SwitchPrimitives from "@radix-ui/react-switch"
+
+import { cn } from "@/lib/utils"
+
+const Switch = React.forwardRef<
+  React.ElementRef<typeof SwitchPrimitives.Root>,
+  React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>
+>(({ className, ...props }, ref) => (
+  <SwitchPrimitives.Root
+    className={cn(
+      "peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input",
+      className,
+    )}
+    {...props}
+    ref={ref}
+  >
+    <SwitchPrimitives.Thumb
+      className={cn(
+        "pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0",
+      )}
+    />
+  </SwitchPrimitives.Root>
+))
+Switch.displayName = SwitchPrimitives.Root.displayName
+
+export { Switch }
+
+```
+```tsx
+shadcn/toggle-group
+"use client"
+
+import * as React from "react"
+import * as ToggleGroupPrimitive from "@radix-ui/react-toggle-group"
+import { type VariantProps } from "class-variance-authority"
+
+import { cn } from "@/lib/utils"
+import { toggleVariants } from "@/components/ui/toggle"
+
+const ToggleGroupContext = React.createContext<
+  VariantProps<typeof toggleVariants>
+>({
+  size: "default",
+  variant: "default",
+})
+
+const ToggleGroup = React.forwardRef<
+  React.ElementRef<typeof ToggleGroupPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Root> &
+    VariantProps<typeof toggleVariants>
+>(({ className, variant, size, children, ...props }, ref) => (
+  <ToggleGroupPrimitive.Root
+    ref={ref}
+    className={cn("flex items-center justify-center gap-1", className)}
+    {...props}
+  >
+    <ToggleGroupContext.Provider value={{ variant, size }}>
+      {children}
+    </ToggleGroupContext.Provider>
+  </ToggleGroupPrimitive.Root>
+))
+
+ToggleGroup.displayName = ToggleGroupPrimitive.Root.displayName
+
+const ToggleGroupItem = React.forwardRef<
+  React.ElementRef<typeof ToggleGroupPrimitive.Item>,
+  React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Item> &
+    VariantProps<typeof toggleVariants>
+>(({ className, children, variant, size, ...props }, ref) => {
+  const context = React.useContext(ToggleGroupContext)
+
+  return (
+    <ToggleGroupPrimitive.Item
+      ref={ref}
+      className={cn(
+        toggleVariants({
+          variant: context.variant || variant,
+          size: context.size || size,
+        }),
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </ToggleGroupPrimitive.Item>
+  )
+})
+
+ToggleGroupItem.displayName = ToggleGroupPrimitive.Item.displayName
+
+export { ToggleGroup, ToggleGroupItem }
+
+```
+```tsx
+shadcn/toggle
+"use client"
+
+import * as React from "react"
+import * as TogglePrimitive from "@radix-ui/react-toggle"
+import { cva, type VariantProps } from "class-variance-authority"
+
+import { cn } from "@/lib/utils"
+
+const toggleVariants = cva(
+  "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors hover:bg-muted hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground",
+  {
+    variants: {
+      variant: {
+        default: "bg-transparent",
+        outline:
+          "border border-input bg-transparent hover:bg-accent hover:text-accent-foreground",
+      },
+      size: {
+        default: "h-10 px-3",
+        sm: "h-9 px-2.5",
+        lg: "h-11 px-5",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+)
+
+const Toggle = React.forwardRef<
+  React.ElementRef<typeof TogglePrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof TogglePrimitive.Root> &
+    VariantProps<typeof toggleVariants>
+>(({ className, variant, size, ...props }, ref) => (
+  <TogglePrimitive.Root
+    ref={ref}
+    className={cn(toggleVariants({ variant, size, className }))}
+    {...props}
+  />
+))
+
+Toggle.displayName = TogglePrimitive.Root.displayName
+
+export { Toggle, toggleVariants }
+
+```
+
+Install NPM dependencies:
+```bash
+next, lucide-react, class-variance-authority, @radix-ui/react-slot, @radix-ui/react-checkbox, @radix-ui/react-avatar, @radix-ui/react-radio-group, @radix-ui/react-label, @radix-ui/react-select, @radix-ui/react-dialog, @radix-ui/react-slider, @radix-ui/react-switch, @radix-ui/react-toggle-group, @radix-ui/react-toggle
+```
